@@ -29,7 +29,7 @@ const server = createServer(async (request, response) => {
         response.writeHead(200).end('ok')
     } catch (error) {
         if (error instanceof WebhookSignatureError) {
-            response.writeHead(401).end('bad signature')
+            response.writeHead(400).end('invalid signature')
             return
         }
         response.writeHead(400).end('bad request')
