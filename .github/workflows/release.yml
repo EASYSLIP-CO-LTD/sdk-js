@@ -164,10 +164,19 @@ jobs:
         env:
           VERSION: ${{ needs.build.outputs.version }}
         run: |
-          if npm view "@easyslip/sdk@${VERSION}" version > /dev/null 2>&1; then
-            echo "@easyslip/sdk@${VERSION} is already on npm, so this run does not publish it again."
+          tarball="package/easyslip-sdk-${VERSION}.tgz"
+          if ! npm view @easyslip/sdk name > /dev/null 2>&1; then
+            echo "::error::@easyslip/sdk is not on npm yet, and npm accepts a trusted publisher only for a package that exists. Publish this version by hand as CONTRIBUTING.md describes, then re-run the failed jobs of this run."
+            exit 1
+          fi
+          published=$(npm view "@easyslip/sdk@${VERSION}" dist.integrity)
+          if [ -z "${published}" ]; then
+            npm publish "${tarball}" --provenance --access public
+          elif [ "${published}" = "sha512-$(openssl dgst -sha512 -binary "${tarball}" | base64 -w0)" ]; then
+            echo "@easyslip/sdk@${VERSION} is already on npm with this exact tarball, so this run does not publish it again."
           else
-            npm publish "package/easyslip-sdk-${VERSION}.tgz" --provenance --access public
+            echo "::error::npm already has a different tarball for @easyslip/sdk@${VERSION}, so this run does not attach its own build to the release."
+            exit 1
           fi
       - name: Attach the tarball and its attestation, then publish the draft release
         env:

@@ -63,10 +63,24 @@ Maintainers release the SDK with [release-please](https://github.com/googleapis/
 2. Merging the release pull request creates the version tag and a draft GitHub Release. The same workflow run then checks that the tag points at the release commit on `main` and matches the `package.json` version, runs every check, and builds the tarball.
 3. The `publish` job runs in the `release` environment. It publishes the tarball to npm with trusted publishing and provenance, attaches the tarball and its build attestation to the draft release and publishes the release. The `smoke` job then installs the published version on every supported Node.js version.
 
-To publish a tag again, for example after a failed publish job, run the `Release` workflow on `main` from the Actions tab and enter the tag, such as `v1.0.0`. The run checks the tag the same way, skips the npm publish when that version is already on npm and leaves a published release as it is.
+If a publish job fails, fix the cause and re-run the failed jobs of that run, which reuse the tarball it built. When that run can no longer be re-run, run the `Release` workflow on `main` from the Actions tab and enter the tag, such as `v1.0.0`. The run checks the tag the same way and builds the tarball again. When npm already has that version, the run goes on only if npm holds the same file, and it leaves a published release as it is.
 
 ### One-time setup
 
-- On npmjs.com, open the `@easyslip/sdk` package settings and add a trusted publisher for GitHub Actions: organization `EASYSLIP-CO-LTD`, repository `sdk-js`, workflow file name `release.yml` and environment `release`. npm then accepts a publish only from that workflow file in that environment, and no npm token is stored anywhere.
+- On npmjs.com, create the `easyslip` organization, which owns the `@easyslip` scope, and require two-factor authentication for its members.
 - In the repository settings, create the `release` environment. Limit its deployment branches to `main`, and add required reviewers if a person should approve each publish. While a publish waits for approval, later runs of the `Release` workflow on `main` wait for it.
+- In the repository settings, under Actions, General, Workflow permissions, turn on "Allow GitHub Actions to create and approve pull requests". release-please opens the release pull request with the workflow's `GITHUB_TOKEN`, and GitHub refuses that without this setting.
+- In the repository's security settings, turn on private vulnerability reporting, which [SECURITY.md](SECURITY.md) asks reporters to use.
 - Optional: create an `integration` environment with an `EASYSLIP_API_KEY` secret, so that CI runs the integration tests on `main`.
+
+### First release
+
+npm accepts a trusted publisher only for a package that already exists, so a maintainer publishes the first version by hand, from the tarball that the workflow built:
+
+1. Merge the release pull request. The `Release` run builds and tests the tarball, creates its build attestation and then stops at the `Publish` step, because `@easyslip/sdk` is not on npm yet.
+2. Download the `package` artifact of that run, unzip it and check that this workflow built the tarball: `gh attestation verify easyslip-sdk-1.0.0.tgz --repo EASYSLIP-CO-LTD/sdk-js`.
+3. Publish it with your own npm login: `npm publish easyslip-sdk-1.0.0.tgz --access public --provenance=false`. npm creates provenance only inside CI, so this one version has none on npm. The attestation from step 2 covers it.
+4. Add the trusted publisher on the package settings page, or with npm 11.15 or later: `npm trust github @easyslip/sdk --repository EASYSLIP-CO-LTD/sdk-js --file release.yml --environment release --allow-publish`. npm then accepts a publish only from the workflow file `release.yml` in the `release` environment, and no npm token is stored anywhere.
+5. Re-run the failed jobs of the `Release` run. `Publish` finds the same tarball on npm and does not publish it again, attaches it and its attestation to the release and publishes the release. `smoke` then installs it on every supported Node.js version.
+
+Every later release is published by the workflow, with provenance.
