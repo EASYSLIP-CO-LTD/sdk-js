@@ -565,10 +565,18 @@ In Express, add `express.raw({ type: 'application/json' })` to the webhook route
 - The [SDK guide](https://document.easyslip.com/en/sdk/javascript) covers this SDK in the EasySlip documentation.
 - The [API reference](https://document.easyslip.com) describes every endpoint, field and [error code](https://document.easyslip.com/en/reference/error-codes).
 
-## Support, contributing, security and license
+## Support
 
-- **Account, quota or billing questions:** contact EasySlip on [LINE @ai-easy](https://line.me/R/ti/p/@ai-easy), by phone at 02-114-8806, on [Facebook](https://www.facebook.com/Easyslip.tech/) or through the [contact page](https://developer.easyslip.com/contact). Include the `requestId` of the call.
-- **Bugs and feature requests:** open an [issue](https://github.com/EASYSLIP-CO-LTD/sdk-js/issues). Never post your API key or a real slip.
-- **Contributing:** see [CONTRIBUTING.md](CONTRIBUTING.md).
-- **Security problems:** report them privately as described in [SECURITY.md](SECURITY.md).
-- **License:** [MIT](LICENSE).
+For account, quota or billing questions, use the [contact page](https://developer.easyslip.com/contact) and include the request id if available. Report bugs and suggest features in [issues](https://github.com/EASYSLIP-CO-LTD/sdk-js/issues). Never post API keys or real slip images.
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, checks and pull requests. Maintainers follow [RELEASING.md](RELEASING.md).
+
+## Security reports
+
+Report vulnerabilities privately as described in [SECURITY.md](SECURITY.md), or email [hello@easyslip.com](mailto:hello@easyslip.com). Never report vulnerabilities in public issues.
+
+## License
+
+[MIT](LICENSE). Copyright (c) 2026 EasySlip Co., Ltd.

@@ -1,11 +1,11 @@
 blank_issues_enabled: false
 contact_links:
   - name: Documentation
-    url: https://document.easyslip.com/en/sdk/javascript
-    about: How to use the SDK and every API endpoint.
-  - name: Account, quota and billing support
+    url: https://document.easyslip.com
+    about: Read the SDK guides and API reference.
+  - name: Account and billing support
     url: https://developer.easyslip.com/contact
-    about: Contact EasySlip on LINE, by phone or through the contact page.
-  - name: Report a security problem
-    url: https://github.com/EASYSLIP-CO-LTD/sdk-js/security/advisories/new
-    about: Report vulnerabilities privately, never in a public issue.
+    about: Contact support through the developer portal.
+  - name: Private security report
+    url: https://docs.github.com/en/code-security/security-advisories/working-with-repository-security-advisories/privately-reporting-a-security-vulnerability
+    about: Use Security > Report a vulnerability in the affected SDK repository, or email hello@easyslip.com. Never report vulnerabilities in public issues.

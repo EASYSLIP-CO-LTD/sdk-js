@@ -579,10 +579,18 @@ createServer(async (request, response) => {
 - [คู่มือ SDK](https://document.easyslip.com/th/sdk/javascript) อธิบาย SDK นี้ในเอกสารของ EasySlip
 - [เอกสาร API](https://document.easyslip.com) อธิบายทุก endpoint ทุกฟิลด์ และ[รหัส error](https://document.easyslip.com/th/reference/error-codes)
 
-## ช่วยเหลือ ร่วมพัฒนา ความปลอดภัย และสัญญาอนุญาต
+## ช่วยเหลือ
 
-- **เรื่องบัญชี โควต้า หรือการชำระเงิน:** ติดต่อ EasySlip ทาง [LINE @ai-easy](https://line.me/R/ti/p/@ai-easy) โทร 02-114-8806 [Facebook](https://www.facebook.com/Easyslip.tech/) หรือ[หน้าติดต่อเรา](https://developer.easyslip.com/contact) แนบ `requestId` ของคำขอนั้นมาด้วย
-- **แจ้งบั๊กหรือขอฟีเจอร์:** เปิด [issue](https://github.com/EASYSLIP-CO-LTD/sdk-js/issues) ห้ามโพสต์ API key หรือรูปสลิปจริง
-- **ร่วมพัฒนา:** อ่าน [CONTRIBUTING.md](CONTRIBUTING.md)
-- **ปัญหาด้านความปลอดภัย:** แจ้งแบบส่วนตัวตามขั้นตอนใน [SECURITY.md](SECURITY.md)
-- **สัญญาอนุญาต:** [MIT](LICENSE)
+เรื่องบัญชี โควต้า หรือการชำระเงิน ติดต่อผ่าน[หน้าติดต่อเรา](https://developer.easyslip.com/contact) พร้อม request id ถ้ามี แจ้งบั๊กหรือขอฟีเจอร์ได้ใน [issues](https://github.com/EASYSLIP-CO-LTD/sdk-js/issues) ห้ามแนบ API key หรือรูปสลิปจริง
+
+## ร่วมพัฒนา
+
+อ่านวิธีติดตั้งเครื่องมือ รันทดสอบ และส่ง pull request ใน [CONTRIBUTING.md](CONTRIBUTING.md) ผู้ดูแลการออกเวอร์ชันอ่าน [RELEASING.md](RELEASING.md)
+
+## แจ้งปัญหาความปลอดภัย
+
+แจ้งแบบส่วนตัวตาม [SECURITY.md](SECURITY.md) หรือส่งอีเมลไปที่ [hello@easyslip.com](mailto:hello@easyslip.com) ห้ามแจ้งช่องโหว่ใน issue สาธารณะ
+
+## สัญญาอนุญาต
+
+[MIT](LICENSE). Copyright (c) 2026 EasySlip Co., Ltd.

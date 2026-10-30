@@ -30,6 +30,8 @@ jobs:
       - run: npm ci
       - name: Lint and format check
         run: npm run lint
+      - name: Release regression tests
+        run: node --test scripts/test-release.mjs
       - name: Type check
         run: npm run typecheck
       - name: Type check the README code samples

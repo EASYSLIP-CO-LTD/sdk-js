@@ -166,10 +166,17 @@ jobs:
         run: |
           tarball="package/easyslip-sdk-${VERSION}.tgz"
           if ! npm view @easyslip/sdk name > /dev/null 2>&1; then
-            echo "::error::@easyslip/sdk is not on npm yet, and npm accepts a trusted publisher only for a package that exists. Publish this version by hand as CONTRIBUTING.md describes, then re-run the failed jobs of this run."
+            echo "::error::@easyslip/sdk is not on npm yet, and npm accepts a trusted publisher only for a package that exists. Publish this version by hand as RELEASING.md describes, then re-run the failed jobs of this run."
             exit 1
           fi
-          published=$(npm view "@easyslip/sdk@${VERSION}" dist.integrity)
+          if published=$(npm view "@easyslip/sdk@${VERSION}" dist.integrity --json); then
+            published=$(printf '%s' "$published" | node --input-type=module -e 'let text=""; for await (const chunk of process.stdin) text+=chunk; const value=JSON.parse(text); if (typeof value!=="string" || !value.startsWith("sha512-")) process.exit(1); console.log(value)')
+          else
+            # npm emits a structured E404 only when this version does not exist.
+            # Network failures, authentication errors and malformed responses stop publication.
+            printf '%s' "$published" | node --input-type=module -e 'let text=""; for await (const chunk of process.stdin) text+=chunk; try { if (JSON.parse(text).error?.code!=="E404") process.exit(1) } catch { process.exit(1) }'
+            published=''
+          fi
           if [ -z "${published}" ]; then
             npm publish "${tarball}" --provenance --access public
           elif [ "${published}" = "sha512-$(openssl dgst -sha512 -binary "${tarball}" | base64 -w0)" ]; then

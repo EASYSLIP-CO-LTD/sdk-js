@@ -2,20 +2,22 @@
 
 ## Supported versions
 
-Security fixes are released in the latest version of `@easyslip/sdk`. Upgrade to the newest release to receive them.
+| Version | Security fixes |
+| --- | --- |
+| Latest 1.x release | Supported |
+| Older releases | Upgrade to the latest 1.x release |
 
-## Reporting a vulnerability
+## Report a vulnerability
 
-Please do not report security problems in public issues, pull requests or discussions.
+Use GitHub private vulnerability reporting for the affected SDK first:
 
-Report them privately through [GitHub private vulnerability reporting](https://github.com/EASYSLIP-CO-LTD/sdk-js/security/advisories/new). In the report, include:
+- [JavaScript](https://github.com/EASYSLIP-CO-LTD/sdk-js/security/advisories/new)
+- [PHP](https://github.com/EASYSLIP-CO-LTD/sdk-php/security/advisories/new)
+- [Python](https://github.com/EASYSLIP-CO-LTD/sdk-python/security/advisories/new)
+- [Go](https://github.com/EASYSLIP-CO-LTD/sdk-go/security/advisories/new)
 
-- the SDK version and the runtime you use, for example Node.js 24
-- the steps to reproduce the problem, using synthetic data only
-- what an attacker could do with it
+If you cannot use GitHub, email [hello@easyslip.com](mailto:hello@easyslip.com). Never report vulnerabilities in public issues, pull requests or discussions.
 
-Never include a real API key, webhook secret, slip image or customer data. If a key may have been exposed, revoke it in the [EasySlip developer portal](https://developer.easyslip.com) first.
+Include the SDK and runtime versions, a minimal reproduction using synthetic data, the expected and actual behavior, and the possible security impact. Do not send API keys, webhook secrets, real slip images or customer data. Revoke any exposed credentials through the [developer portal](https://developer.easyslip.com).
 
-We reply in the advisory, agree on a fix and a disclosure date with you, and credit you in the published advisory if you want to be named.
-
-If you cannot use GitHub, ask for a private security contact through the [EasySlip contact page](https://developer.easyslip.com/contact).
+We acknowledge reports and keep the reporter updated as we investigate and prepare a fix. We agree on disclosure with the reporter. If you would like public credit, tell us how you want to be named.
