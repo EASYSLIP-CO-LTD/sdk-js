@@ -1,0 +1,42 @@
+name: Bug report
+description: Something in the SDK does not work as documented.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for reporting a problem. Never paste an API key, a webhook secret, a real slip image or customer data here. For a security problem, follow SECURITY.md instead.
+  - type: input
+    id: version
+    attributes:
+      label: SDK version
+      description: The version of @easyslip/sdk, from `npm ls @easyslip/sdk`.
+      placeholder: 1.0.0
+    validations:
+      required: true
+  - type: input
+    id: runtime
+    attributes:
+      label: Runtime and version
+      description: For example Node.js 24.11, Bun 1.4 or Deno 2.9, and the framework if you use one.
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What you did, what you expected and what happened instead.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Code to reproduce
+      description: The smallest code that shows the problem. Replace keys and slip data with placeholders.
+      render: ts
+  - type: textarea
+    id: error
+    attributes:
+      label: Error output
+      description: The error class, `error.code`, `error.status` and `error.requestId`, and the stack trace if there is one.
+      render: text

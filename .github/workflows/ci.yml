@@ -1,0 +1,200 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  lint:
+    name: Lint, format and types
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 26
+          package-manager-cache: false
+      - run: npm ci
+      - name: Lint and format check
+        run: npm run lint
+      - name: Type check
+        run: npm run typecheck
+
+  test:
+    name: Test on Node.js ${{ matrix.node }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [22, 24, 26]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ matrix.node }}
+          package-manager-cache: false
+      - run: npm ci
+      - name: Unit and conformance tests with coverage
+        run: npm run test:coverage
+      - name: Coverage summary
+        run: |
+          node -e "const t = require('./coverage/coverage-summary.json').total;
+          const row = (k) => '| ' + k + ' | ' + t[k].pct + '% |';
+          console.log(['| Metric | Covered |', '| --- | --- |', ...['lines', 'statements', 'functions', 'branches'].map(row)].join('\n'))" >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: coverage-node-${{ matrix.node }}
+          path: coverage/
+          if-no-files-found: error
+
+  package:
+    name: Package on Node.js ${{ matrix.node }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [22, 24, 26]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ matrix.node }}
+          package-manager-cache: false
+      - run: npm ci
+      - name: Build, pack, lint the package and install it in a fresh project
+        run: npm run check:package
+      - name: Run an example from the build
+        run: |
+          set +e
+          output=$(node examples/get-info.ts 2>&1)
+          status=$?
+          set -e
+          echo "$output"
+          test "$status" -eq 1
+          echo "$output" | grep -q 'no API key'
+      - name: Pack the tarball for the other runtimes
+        if: matrix.node == 26
+        run: |
+          mkdir -p package
+          npm pack --pack-destination package
+      - if: matrix.node == 26
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: package
+          path: package/
+          if-no-files-found: error
+
+  runtimes:
+    name: Package on ${{ matrix.runtime }}
+    needs: package
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        runtime: [bun, deno]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 26
+          package-manager-cache: false
+      - if: matrix.runtime == 'bun'
+        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version: 1.4.4
+          no-cache: true
+      - if: matrix.runtime == 'deno'
+        uses: denoland/setup-deno@22d081ff2d3a40755e97629de92e3bcbfa7cf2ed # v2.0.5
+        with:
+          deno-version: 2.9.8
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: package
+          path: package/
+      - name: Install the tarball in a fresh project and make an offline call
+        env:
+          RUNTIME: ${{ matrix.runtime }}
+        run: | # zizmor: ignore[adhoc-packages] installs the tarball built in this run
+          mkdir app
+          cp scripts/consumer/offline-call.mjs app/
+          cd app
+          echo '{ "name": "consumer", "private": true, "type": "module" }' > package.json
+          npm install --no-audit --no-fund --ignore-scripts ../package/*.tgz
+          if [ "$RUNTIME" = bun ]; then bun offline-call.mjs; else deno run --allow-env --allow-read offline-call.mjs; fi
+
+  workflows:
+    name: Workflow lint
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: actionlint
+        env:
+          VERSION: 1.7.12
+          SHA256: 8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8
+        run: |
+          curl -sSfL -o actionlint.tar.gz "https://github.com/rhysd/actionlint/releases/download/v${VERSION}/actionlint_${VERSION}_linux_amd64.tar.gz"
+          echo "${SHA256}  actionlint.tar.gz" | sha256sum --check
+          tar -xzf actionlint.tar.gz actionlint
+          ./actionlint -color
+      - uses: zizmorcore/zizmor-action@53290badfa369cb0bf7ad16342cb62c2fa47ac7b # v0.8.0
+        with:
+          version: 1.31.1
+          advanced-security: false
+          persona: pedantic
+
+  integration:
+    name: Integration tests (live API)
+    if: github.event_name != 'pull_request'
+    needs: [test, package]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    environment: integration
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 26
+          package-manager-cache: false
+      - run: npm ci
+      # Every test is skipped when the integration environment has no EASYSLIP_API_KEY secret.
+      - name: Integration tests
+        env:
+          EASYSLIP_API_KEY: ${{ secrets.EASYSLIP_API_KEY }}
+        run: npm run test:integration

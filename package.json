@@ -1,0 +1,79 @@
+{
+    "name": "@easyslip/sdk",
+    "version": "0.0.0",
+    "description": "Official EasySlip SDK for JavaScript and TypeScript: verify Thai bank and TrueMoney Wallet slips, generate payment QR codes and check webhook signatures.",
+    "keywords": [
+        "easyslip",
+        "slip",
+        "slip-verification",
+        "promptpay",
+        "truemoney",
+        "thai-bank",
+        "qr-code",
+        "payment",
+        "sdk",
+        "typescript"
+    ],
+    "homepage": "https://github.com/EASYSLIP-CO-LTD/sdk-js#readme",
+    "bugs": {
+        "url": "https://github.com/EASYSLIP-CO-LTD/sdk-js/issues"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/EASYSLIP-CO-LTD/sdk-js.git"
+    },
+    "license": "MIT",
+    "author": "EasySlip Co., Ltd.",
+    "type": "module",
+    "main": "./dist/cjs/index.js",
+    "module": "./dist/esm/index.js",
+    "types": "./dist/cjs/index.d.ts",
+    "exports": {
+        ".": {
+            "import": {
+                "types": "./dist/esm/index.d.ts",
+                "default": "./dist/esm/index.js"
+            },
+            "require": {
+                "types": "./dist/cjs/index.d.ts",
+                "default": "./dist/cjs/index.js"
+            }
+        },
+        "./package.json": "./package.json"
+    },
+    "files": [
+        "dist",
+        "README.th.md",
+        "CHANGELOG.md"
+    ],
+    "sideEffects": false,
+    "engines": {
+        "node": ">=22"
+    },
+    "publishConfig": {
+        "access": "public",
+        "provenance": true
+    },
+    "scripts": {
+        "build": "node scripts/build.mjs",
+        "lint": "biome ci .",
+        "format": "biome format --write .",
+        "typecheck": "tsc -p tsconfig.json",
+        "test": "vitest run",
+        "test:coverage": "vitest run --coverage",
+        "test:integration": "vitest run --config vitest.integration.config.ts",
+        "check:package": "node scripts/check-package.mjs",
+        "prepack": "npm run build"
+    },
+    "devDependencies": {
+        "@arethetypeswrong/cli": "0.18.5",
+        "@biomejs/biome": "2.6.4",
+        "@types/node": "26.6.6",
+        "@vitest/coverage-v8": "5.0.5",
+        "publint": "0.3.25",
+        "typescript": "7.0.2",
+        "typescript-5": "npm:typescript@5.9.3",
+        "vite": "8.3.5",
+        "vitest": "5.0.5"
+    }
+}
