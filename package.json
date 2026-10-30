@@ -63,6 +63,7 @@
         "test:coverage": "vitest run --coverage",
         "test:integration": "vitest run --config vitest.integration.config.ts",
         "check:package": "node scripts/check-package.mjs",
+        "check:readme": "node scripts/check-readme.mjs",
         "prepack": "npm run build"
     },
     "devDependencies": {

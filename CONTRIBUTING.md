@@ -27,6 +27,7 @@ Run these before you open a pull request. CI runs the same commands.
 | --- | --- |
 | `npm run lint` | Lint and formatting with Biome. `npm run format` fixes the formatting. |
 | `npm run typecheck` | Types in the source, the tests and the examples. |
+| `npm run check:readme` | Every TypeScript code block in `README.md` and `README.th.md` compiles against the current API. |
 | `npm test` | Unit tests and the conformance tests in `test/conformance.test.ts`, which replay the recorded API responses in `test/fixtures`. |
 | `npm run test:coverage` | The same tests with a coverage report in `coverage/`. |
 | `npm run build` | Builds the ESM and CommonJS output in `dist/`. |
@@ -50,7 +51,7 @@ Verifications use your quota. Use slips you are allowed to verify, and never com
 ## Pull requests
 
 - Keep each pull request to one change, and add or update tests for it.
-- Update `README.md` and `README.th.md` when the public API or its behaviour changes.
+- Update `README.md` and `README.th.md` when the public API or its behaviour changes, and run `npm run check:readme`.
 - Write the pull request title as a [Conventional Commit](https://www.conventionalcommits.org/en/v1.0.0/), for example `fix: keep the request id on network errors` or `feat: add bankAccounts.delete`. Pull requests are squash merged, and the title becomes the commit message.
 - `feat` adds a minor version, `fix` and `perf` add a patch version, and a `!` after the type (for example `feat!:`) marks a breaking change.
 

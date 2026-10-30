@@ -32,6 +32,8 @@ jobs:
         run: npm run lint
       - name: Type check
         run: npm run typecheck
+      - name: Type check the README code samples
+        run: npm run check:readme
 
   test:
     name: Test on Node.js ${{ matrix.node }}
