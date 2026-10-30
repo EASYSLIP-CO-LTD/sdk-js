@@ -1,21 +1,11 @@
 {
     "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
-    "release-type": "node",
-    "include-component-in-tag": false,
-    "initial-version": "1.0.0",
-    "draft": true,
-    "force-tag-creation": true,
-    "changelog-sections": [
-        { "type": "feat", "section": "Features" },
-        { "type": "fix", "section": "Bug Fixes" },
-        { "type": "perf", "section": "Performance" },
-        { "type": "deps", "section": "Dependencies" },
-        { "type": "docs", "section": "Documentation" },
-        { "type": "revert", "section": "Reverts" }
-    ],
     "packages": {
         ".": {
-            "package-name": "@easyslip/sdk",
+            "release-type": "node",
+            "initial-version": "1.0.0",
+            "include-v-in-tag": true,
+            "include-component-in-tag": false,
             "extra-files": ["src/version.ts"]
         }
     }
