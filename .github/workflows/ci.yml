@@ -179,7 +179,7 @@ jobs:
 
   integration:
     name: Integration tests (live API)
-    if: github.event_name != 'pull_request'
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
     needs: [test, package]
     runs-on: ubuntu-24.04
     timeout-minutes: 15

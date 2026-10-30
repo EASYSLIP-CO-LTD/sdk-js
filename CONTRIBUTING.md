@@ -57,8 +57,16 @@ Verifications use your quota. Use slips you are allowed to verify, and never com
 
 ## Releases
 
-Maintainers release the SDK with [release-please](https://github.com/googleapis/release-please):
+Maintainers release the SDK with [release-please](https://github.com/googleapis/release-please). Everything runs in one workflow, [`.github/workflows/release.yml`](.github/workflows/release.yml):
 
-1. Every merge to `main` updates a release pull request with the next version and the changelog.
-2. Merging the release pull request creates the version tag and a draft GitHub Release.
-3. A maintainer reviews the draft and publishes it. Publishing runs the `Publish` workflow, which builds and tests the tag, publishes to npm with trusted publishing and provenance, attaches the package and its build attestation to the release, and installs the published version to check it.
+1. Every merge to `main` updates a release pull request with the next version and the changelog. GitHub does not start workflows for a pull request that a workflow updated, so the release job starts CI on the release branch itself, and the checks show on the release pull request. If they are missing, run the `CI` workflow on the `release-please--branches--main` branch from the Actions tab.
+2. Merging the release pull request creates the version tag and a draft GitHub Release. The same workflow run then checks that the tag points at the release commit on `main` and matches the `package.json` version, runs every check, and builds the tarball.
+3. The `publish` job runs in the `release` environment. It publishes the tarball to npm with trusted publishing and provenance, attaches the tarball and its build attestation to the draft release and publishes the release. The `smoke` job then installs the published version on every supported Node.js version.
+
+To publish a tag again, for example after a failed publish job, run the `Release` workflow on `main` from the Actions tab and enter the tag, such as `v1.0.0`. The run checks the tag the same way, skips the npm publish when that version is already on npm and leaves a published release as it is.
+
+### One-time setup
+
+- On npmjs.com, open the `@easyslip/sdk` package settings and add a trusted publisher for GitHub Actions: organization `EASYSLIP-CO-LTD`, repository `sdk-js`, workflow file name `release.yml` and environment `release`. npm then accepts a publish only from that workflow file in that environment, and no npm token is stored anywhere.
+- In the repository settings, create the `release` environment. Limit its deployment branches to `main`, and add required reviewers if a person should approve each publish. While a publish waits for approval, later runs of the `Release` workflow on `main` wait for it.
+- Optional: create an `integration` environment with an `EASYSLIP_API_KEY` secret, so that CI runs the integration tests on `main`.
