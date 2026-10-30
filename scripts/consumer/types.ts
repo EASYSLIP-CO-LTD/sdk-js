@@ -1,9 +1,12 @@
 // Type-checks the published .d.ts files the way an application uses them.
 import {
+    type AccountType,
     type BankSlipResult,
     type Client,
+    type CreateBankAccountParams,
     EasySlip,
     EasySlipError,
+    type QrType,
     SlipNotFoundError,
     type WithMeta,
 } from '@easyslip/sdk'
@@ -30,3 +33,16 @@ export const rooted: boolean =
 
 // @ts-expect-error the API key is a string, so the types are not `any`
 new EasySlip({ apiKey: 1 })
+
+// Request values the API rejects do not type check.
+export const juristic: CreateBankAccountParams = {
+    bankCode: '004',
+    bankNumber: '1234567890',
+    nameTh: 'บริษัท ตัวอย่าง จำกัด',
+    nameEn: 'EXAMPLE CO., LTD.',
+    type: 'JURISTIC',
+}
+// @ts-expect-error a receiving account type is NATURAL or JURISTIC
+export const bankType: AccountType = 'BANK'
+// @ts-expect-error the API has no QR type BANK
+export const qrType: QrType = 'BANK'

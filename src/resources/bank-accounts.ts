@@ -11,7 +11,8 @@ import type {
     UnlinkResult,
 } from '../models.js'
 
-type AccountType = Open<(typeof BankAccountType)[keyof typeof BankAccountType]>
+/** The receiving account types a request may send: `NATURAL` or `JURISTIC`. */
+export type AccountType = (typeof BankAccountType)[keyof typeof BankAccountType]
 type AccountMatchMode = Open<(typeof MatchMode)[keyof typeof MatchMode]>
 
 /** Filters and paging for the list calls. */

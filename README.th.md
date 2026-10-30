@@ -234,7 +234,7 @@ for await (const item of easyslip.bankAccounts.iterateAll()) {
 | `bankAccounts.iterate(params)` | ไล่ดูทุกบัญชีที่ผูกกับสาขานี้ ดึงหน้าละ 100 บัญชี |
 | `bankAccounts.iterateAll(params)` | ไล่ดูทุกบัญชีของบริการ ดึงหน้าละ 100 บัญชี |
 
-เมธอดดึงรายการทั้งสี่ตัวกรองด้วย `type` (`NATURAL` หรือ `JURISTIC`) และ `bankCode` ได้ ถ้าเพิ่มบัญชีที่มีอยู่แล้วจะได้ `ConflictError`
+`type` เป็น `NATURAL` สำหรับบัญชีบุคคลธรรมดา หรือ `JURISTIC` สำหรับบัญชีนิติบุคคล และ type `AccountType` รับได้แค่สองค่านี้ เมธอดดึงรายการทั้งสี่ตัวกรองด้วย `type` และ `bankCode` ได้ ถ้าเพิ่มบัญชีที่มีอยู่แล้วจะได้ `ConflictError`
 
 ### ตรวจสลิปจำนวนมากเบื้องหลัง
 
@@ -300,7 +300,7 @@ await writeFile('bill.png', bill.imageBytes())
 | `MAE_MANEE` | `ref1` คือรหัสร้าน 15 หลัก | `amount` |
 | `TUNGNGERN` | `ref1` คือรหัสร้านค้า และ `merchantName` คือชื่อร้านภาษาอังกฤษ | `amount` |
 
-type `BILL_PAYMENT` แบบเดิมยังใช้ได้ ถ้าใช้ `billerId` เดียวกันจะได้คิวอาร์เดียวกับ `PROMPTPAY`
+type `BILL_PAYMENT` แบบเดิมยังใช้ได้ ถ้าใช้ `billerId` เดียวกันจะได้คิวอาร์เดียวกับ `PROMPTPAY` ส่วน type `QrType` รวมทั้งห้า type ที่ API รับ
 
 ### API v1 แบบเดิม
 
@@ -446,7 +446,7 @@ error ทุกตัวที่ SDK โยนเป็น `EasySlipError` ส�
 | `SlipPendingError` | 404 | ธนาคารยังไม่เผยแพร่รายการโอนนี้ มักเกิดกับสลิปธนาคารกรุงเทพที่เพิ่งโอน | รอประมาณหนึ่งนาทีแล้วตรวจใหม่ |
 | `ConflictError` | 409 | บัญชีรับเงินที่กำลังเพิ่มมีอยู่แล้ว | ใช้บัญชีเดิม หาได้ด้วย `bankAccounts.listAll()` |
 | `RateLimitError` | 429 | ส่งคำขอถี่เกินไป `error.retryAfter` บอกว่าต้องรอกี่วินาที | ลดจำนวนคำขอที่ส่งพร้อมกัน SDK ลองใหม่ให้แล้วก่อนโยน error นี้ |
-| `ServerError` | 500, 502, 504 | เกิดปัญหาที่ฝั่ง EasySlip | ลองใหม่ภายหลัง ถ้ายังเกิดซ้ำให้ติดต่อซัพพอร์ตพร้อม `error.requestId` |
+| `ServerError` | 500, 502, 504; 5xx อื่นยกเว้น 503 | เกิดปัญหาที่ฝั่ง EasySlip | ลองใหม่ภายหลัง ถ้ายังเกิดซ้ำให้ติดต่อซัพพอร์ตพร้อม `error.requestId` |
 | `ServiceUnavailableError` | 503 | บริการไม่พร้อมใช้งานชั่วคราว เช่น ช่วงต่ออายุโควต้า | ลองใหม่ในอีกไม่กี่นาที |
 | `ApiError` | 4xx อื่น ๆ | API ตอบ error ด้วย status ที่ไม่มีคลาสเฉพาะ | เก็บ log `status`, `code` และ `requestId` ถ้ายังเกิดอยู่ให้ติดต่อซัพพอร์ต |
 | `NetworkError` | เครือข่าย | ไม่ได้รับคำตอบเพราะ DNS การเชื่อมต่อ หรือ TLS ล้มเหลว | ตรวจเครือข่ายหรือ proxy แล้วลองใหม่ |
@@ -525,15 +525,22 @@ SDK ลองส่งคำขอที่ล้มเหลวใหม่ไ�
 
 ```ts
 import { createServer } from 'node:http'
-import { constructWebhookEvent, WEBHOOK_SIGNATURE_HEADER, WebhookSignatureError } from '@easyslip/sdk'
+import {
+    constructWebhookEvent,
+    InputError,
+    WEBHOOK_SIGNATURE_HEADER,
+    WebhookSignatureError,
+} from '@easyslip/sdk'
+
+if (!process.env.EASYSLIP_WEBHOOK_SECRET) throw new Error('กรุณาตั้งค่า EASYSLIP_WEBHOOK_SECRET')
 
 createServer(async (request, response) => {
-    const chunks: Buffer[] = []
-    for await (const chunk of request) chunks.push(chunk as Buffer)
-    const rawBody = Buffer.concat(chunks)
-    const signature = request.headers[WEBHOOK_SIGNATURE_HEADER.toLowerCase()]
-
     try {
+        const chunks: Buffer[] = []
+        for await (const chunk of request) chunks.push(chunk as Buffer)
+        const rawBody = Buffer.concat(chunks)
+        const signature = request.headers[WEBHOOK_SIGNATURE_HEADER.toLowerCase()]
+
         // ใช้ secret จาก EASYSLIP_WEBHOOK_SECRET
         const event = constructWebhookEvent(rawBody, signature)
         if (event.status === 'success') {
@@ -543,19 +550,26 @@ createServer(async (request, response) => {
         }
         response.writeHead(200).end('ok')
     } catch (error) {
-        if (!(error instanceof WebhookSignatureError)) throw error
-        response.writeHead(400).end('invalid signature')
+        if (error instanceof WebhookSignatureError || error instanceof InputError) {
+            // ไม่มีลายเซ็น ลายเซ็นไม่ตรง หรือ body ที่ลงลายเซ็นมาไม่ใช่ event ของเว็บฮุค
+            response.writeHead(400).end('invalid webhook')
+        } else {
+            console.error('จัดการเว็บฮุคไม่สำเร็จ', error)
+            response.writeHead(500).end('error')
+        }
     }
 }).listen(3000)
 ```
+
+เซิร์ฟเวอร์นี้ตอบ 400 เมื่อไม่มีลายเซ็นหรือลายเซ็นไม่ตรง และเมื่อ body ที่ลงลายเซ็นมาไม่ใช่ event ของเว็บฮุค และตอบ 500 เมื่อเกิดปัญหาอื่น EasySlip จะส่ง event เดิมอีกครั้งเมื่อได้คำตอบที่ไม่ใช่ 2xx
 
 ถ้าใช้ Express ให้ใส่ `express.raw({ type: 'application/json' })` ที่ route ของเว็บฮุค เพื่อให้ `req.body` เป็น body ดิบแบบ `Buffer` แล้วส่ง `req.body` กับ `req.get(WEBHOOK_SIGNATURE_HEADER)` เข้า `constructWebhookEvent` อย่าใช้ `express.json()` กับ route นี้ เพราะการแปลง JSON แล้วแปลงกลับเป็นข้อความจะทำให้ bytes เปลี่ยน แล้วลายเซ็นจะไม่ตรง
 
 | ฟังก์ชัน | ใช้ทำอะไร |
 | --- | --- |
-| `constructWebhookEvent(rawBody, header, secret?)` | ตรวจลายเซ็นแล้วคืน event ที่แปลงแล้ว โยน `WebhookSignatureError` เมื่อไม่มีลายเซ็นหรือลายเซ็นไม่ตรง |
+| `constructWebhookEvent(rawBody, header, secret?)` | ตรวจลายเซ็นแล้วคืน event ที่แปลงแล้ว โยน `WebhookSignatureError` เมื่อไม่มีลายเซ็นหรือลายเซ็นไม่ตรง และโยน `InputError` เมื่อ body ไม่ใช่ JSON object ที่มี `jobId`, `status` และ `timestamp` |
 | `verifyWebhookSignature(rawBody, header, secret?)` | คืน `true` เมื่อลายเซ็นตรง และ `false` เมื่อไม่ตรง |
-| `parseWebhookEvent(rawBody)` | แปลง event โดยไม่ตรวจลายเซ็น ใช้หลังจากตรวจลายเซ็นเองแล้วเท่านั้น |
+| `parseWebhookEvent(rawBody)` | แปลง event โดยไม่ตรวจลายเซ็น และโยน `InputError` เมื่อ body ไม่ใช่ event ใช้หลังจากตรวจลายเซ็นเองแล้วเท่านั้น |
 
 ถ้าไม่ส่ง `secret` จะใช้ค่าจาก `EASYSLIP_WEBHOOK_SECRET` ตอบกลับด้วย status 2xx ภายใน 5 วินาที EasySlip อาจส่ง event เดิมมาซ้ำได้ ให้ใช้ `jobId` ข้าม event ที่จัดการไปแล้ว
 

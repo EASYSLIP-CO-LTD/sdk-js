@@ -62,7 +62,11 @@ export function verifyWebhookSignature(
     return equalConstantTime(given, expected)
 }
 
-/** Parses a webhook body into a {@link WebhookEvent} without checking the signature. */
+/**
+ * Parses a webhook body into a {@link WebhookEvent} without checking the signature. Throws
+ * {@link InputError} when the body is not a JSON object with string `jobId`, `status` and
+ * `timestamp` fields.
+ */
 export function parseWebhookEvent(rawBody: WebhookBody): WebhookEvent {
     const text = typeof rawBody === 'string' ? rawBody : new TextDecoder().decode(toBytes(rawBody))
     let value: unknown
@@ -74,12 +78,23 @@ export function parseWebhookEvent(rawBody: WebhookBody): WebhookEvent {
     if (value === null || typeof value !== 'object' || Array.isArray(value)) {
         throw new InputError('INVALID_ARGUMENT', 'webhook body is not a JSON object')
     }
+    const fields = value as Record<string, unknown>
+    if (
+        typeof fields.jobId !== 'string' ||
+        typeof fields.status !== 'string' ||
+        typeof fields.timestamp !== 'string'
+    ) {
+        throw new InputError(
+            'INVALID_ARGUMENT',
+            'webhook body must contain jobId, status and timestamp',
+        )
+    }
     return parseModel('WebhookEvent', value)
 }
 
 /**
  * Verifies the signature, then parses the body. Throws {@link WebhookSignatureError} when the
- * signature is missing or wrong.
+ * signature is missing or wrong, and {@link InputError} when a signed body is not a webhook event.
  */
 export function constructWebhookEvent(
     rawBody: WebhookBody,

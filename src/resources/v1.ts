@@ -69,6 +69,9 @@ export interface TungNgernQr extends QrBase {
 /** Body of `v1.generateQr`. The API checks the field combinations. */
 export type QrRequest = PromptPayQr | BillPaymentQr | MerchantQr | TungNgernQr
 
+/** The QR types `v1.generateQr` accepts. */
+export type QrType = QrRequest['type']
+
 /** A QR code from `generateQr`, with a helper that decodes the PNG. */
 export type QrCodeResult = WithMeta<QrCode> & {
     /** The PNG image as bytes. */

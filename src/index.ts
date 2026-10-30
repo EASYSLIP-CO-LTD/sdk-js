@@ -31,6 +31,7 @@ export type { FetchLike, RequestOptions, RetryClass } from './core/http.js'
 export type { RateLimit, ResponseMeta, WithMeta } from './core/meta.js'
 export * from './models.js'
 export type {
+    AccountType,
     BankAccounts,
     CreateBankAccountParams,
     ListBankAccountsParams,
@@ -51,6 +52,7 @@ export type {
     PromptPayQr,
     QrCodeResult,
     QrRequest,
+    QrType,
     TungNgernQr,
     V1,
     V1VerifyOptions,

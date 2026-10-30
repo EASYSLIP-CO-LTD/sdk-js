@@ -81,6 +81,40 @@ describe('webhook helpers', () => {
         expect(() => sdk.parseWebhookEvent('[1]')).toThrow(sdk.InputError)
     })
 
+    test('a signed body that is not a webhook event throws InputError, not an empty event', () => {
+        const bodies = [
+            'not json',
+            '[]',
+            'null',
+            '{}',
+            '{"jobId":"j","status":"success"}',
+            '{"jobId":null,"status":"success","timestamp":"t"}',
+            '{"jobId":"j","status":1,"timestamp":"t"}',
+        ]
+        for (const raw of bodies) {
+            let thrown: unknown
+            try {
+                sdk.constructWebhookEvent(raw, sign(raw), SECRET)
+            } catch (error) {
+                thrown = error
+            }
+            expect(thrown, raw).toBeInstanceOf(sdk.InputError)
+            expect((thrown as InstanceType<typeof sdk.InputError>).code, raw).toBe(
+                'INVALID_ARGUMENT',
+            )
+            expect(() => sdk.parseWebhookEvent(raw), raw).toThrow(sdk.InputError)
+        }
+        expect(() => sdk.parseWebhookEvent('{}')).toThrow(
+            'webhook body must contain jobId, status and timestamp',
+        )
+    })
+
+    test('the signature is checked before the body', () => {
+        expect(() => sdk.constructWebhookEvent('{}', sign('{}', 'other'), SECRET)).toThrow(
+            sdk.WebhookSignatureError,
+        )
+    })
+
     test('the header name is X-EasySlip-Signature', () => {
         expect(sdk.WEBHOOK_SIGNATURE_HEADER).toBe(settings.webhook.signatureHeader)
     })

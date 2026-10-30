@@ -228,7 +228,7 @@ for await (const item of easyslip.bankAccounts.iterateAll()) {
 | `bankAccounts.iterate(params)` | Goes through every account linked to this branch, 100 per page. |
 | `bankAccounts.iterateAll(params)` | Goes through every account in the service, 100 per page. |
 
-The four list methods can filter by `type` (`NATURAL` or `JURISTIC`) and by `bankCode`. Adding an account that already exists throws `ConflictError`.
+`type` is `NATURAL` for a personal account or `JURISTIC` for a company account, and the `AccountType` type accepts only those two values. The four list methods can filter by `type` and by `bankCode`. Adding an account that already exists throws `ConflictError`.
 
 ### Verify many slips in the background
 
@@ -294,7 +294,7 @@ await writeFile('bill.png', bill.imageBytes())
 | `MAE_MANEE` | `ref1`, the 15-digit shop ID | `amount` |
 | `TUNGNGERN` | `ref1`, the merchant code, and `merchantName`, the shop name in English | `amount` |
 
-The older `BILL_PAYMENT` type still works. With the same `billerId` it creates the same QR code as `PROMPTPAY`.
+The older `BILL_PAYMENT` type still works. With the same `billerId` it creates the same QR code as `PROMPTPAY`. The `QrType` type lists the five types the API accepts.
 
 ### Legacy API v1
 
@@ -434,7 +434,7 @@ Every error the SDK throws is an `EasySlipError`. Errors that come from the API 
 | `SlipPendingError` | 404 | The bank has not published the transfer yet. This happens with very recent Bangkok Bank slips. | Verify the slip again after a minute. |
 | `ConflictError` | 409 | The bank account you are adding already exists. | Use the existing account. `bankAccounts.listAll()` finds it. |
 | `RateLimitError` | 429 | You sent too many requests. `error.retryAfter` says how many seconds to wait. | Send fewer requests at the same time. The SDK has already retried this one. |
-| `ServerError` | 500, 502, 504 | Something failed on the EasySlip side. | Try again later. If it keeps happening, contact support with `error.requestId`. |
+| `ServerError` | 500, 502, 504; other 5xx except 503 | Something failed on the EasySlip side. | Try again later. If it keeps happening, contact support with `error.requestId`. |
 | `ServiceUnavailableError` | 503 | The service is briefly unavailable, for example while quotas renew. | Try again in a few minutes. |
 | `ApiError` | Another 4xx status | The API answered with an error status that has no class of its own. | Log `status`, `code` and `requestId`, and contact support if it continues. |
 | `NetworkError` | Network | No response arrived, because of a DNS, connection or TLS failure. | Check your network or proxy, then try again. |
@@ -511,15 +511,22 @@ This server uses only Node.js:
 
 ```ts
 import { createServer } from 'node:http'
-import { constructWebhookEvent, WEBHOOK_SIGNATURE_HEADER, WebhookSignatureError } from '@easyslip/sdk'
+import {
+    constructWebhookEvent,
+    InputError,
+    WEBHOOK_SIGNATURE_HEADER,
+    WebhookSignatureError,
+} from '@easyslip/sdk'
+
+if (!process.env.EASYSLIP_WEBHOOK_SECRET) throw new Error('Set EASYSLIP_WEBHOOK_SECRET')
 
 createServer(async (request, response) => {
-    const chunks: Buffer[] = []
-    for await (const chunk of request) chunks.push(chunk as Buffer)
-    const rawBody = Buffer.concat(chunks)
-    const signature = request.headers[WEBHOOK_SIGNATURE_HEADER.toLowerCase()]
-
     try {
+        const chunks: Buffer[] = []
+        for await (const chunk of request) chunks.push(chunk as Buffer)
+        const rawBody = Buffer.concat(chunks)
+        const signature = request.headers[WEBHOOK_SIGNATURE_HEADER.toLowerCase()]
+
         // Uses the secret in EASYSLIP_WEBHOOK_SECRET
         const event = constructWebhookEvent(rawBody, signature)
         if (event.status === 'success') {
@@ -529,19 +536,26 @@ createServer(async (request, response) => {
         }
         response.writeHead(200).end('ok')
     } catch (error) {
-        if (!(error instanceof WebhookSignatureError)) throw error
-        response.writeHead(400).end('invalid signature')
+        if (error instanceof WebhookSignatureError || error instanceof InputError) {
+            // The signature is missing or wrong, or the signed body is not a webhook event
+            response.writeHead(400).end('invalid webhook')
+        } else {
+            console.error('Webhook failed', error)
+            response.writeHead(500).end('error')
+        }
     }
 }).listen(3000)
 ```
+
+The server answers 400 when the signature is missing or wrong and when a signed body is not a webhook event, and 500 when anything else fails. EasySlip sends the event again after a non-2xx answer.
 
 In Express, add `express.raw({ type: 'application/json' })` to the webhook route so that `req.body` is the raw body as a `Buffer`, then pass `req.body` and `req.get(WEBHOOK_SIGNATURE_HEADER)` to `constructWebhookEvent`. Do not use `express.json()` on that route. Parsing the JSON and turning it back into text changes the bytes, and the signature then no longer matches.
 
 | Function | What it does |
 | --- | --- |
-| `constructWebhookEvent(rawBody, header, secret?)` | Checks the signature, then returns the parsed event. It throws `WebhookSignatureError` when the signature is missing or wrong. |
+| `constructWebhookEvent(rawBody, header, secret?)` | Checks the signature, then returns the parsed event. It throws `WebhookSignatureError` when the signature is missing or wrong, and `InputError` when the body is not a JSON object with `jobId`, `status` and `timestamp`. |
 | `verifyWebhookSignature(rawBody, header, secret?)` | Returns `true` when the signature matches and `false` when it does not. |
-| `parseWebhookEvent(rawBody)` | Parses the event without checking the signature. Use it only after you have checked the signature yourself. |
+| `parseWebhookEvent(rawBody)` | Parses the event without checking the signature, and throws `InputError` for a body that is not an event. Use it only after you have checked the signature yourself. |
 
 `secret` defaults to `EASYSLIP_WEBHOOK_SECRET`. Answer with a 2xx status within 5 seconds. EasySlip may send the same event more than once, so use `jobId` to skip events you have already handled.
 

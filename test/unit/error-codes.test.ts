@@ -3,6 +3,7 @@ import { expect, test } from 'vitest'
 import { errorCodes, statusFallback } from '../../src/core/error-codes.ts'
 import * as sdk from '../../src/index.ts'
 import { VERSION } from '../../src/version.ts'
+import { mockClient, v2error } from './helpers.ts'
 
 interface Catalogue {
     classes: Record<string, { parent: string }>
@@ -27,6 +28,20 @@ test('unknown codes fall back to the class for their HTTP status', () => {
             Object.entries(catalogue.statusFallback).map(([status, cls]) => [Number(status), cls]),
         ),
     )
+})
+
+test('other 5xx statuses without a known code are ServerError, 503 is ServiceUnavailableError', async () => {
+    for (const status of [500, 501, 502, 504, 507, 599]) {
+        const { client } = mockClient(() => v2error(status, 'UNLISTED'), { maxRetries: 0 })
+        const error = await client.getInfo().catch((e: unknown) => e)
+        expect((error as object).constructor, String(status)).toBe(sdk.ServerError)
+    }
+    const unavailable = mockClient(() => v2error(503, 'UNLISTED'), { maxRetries: 0 })
+    const error503 = await unavailable.client.getInfo().catch((e: unknown) => e)
+    expect((error503 as object).constructor).toBe(sdk.ServiceUnavailableError)
+    const teapot = mockClient(() => v2error(418, 'UNLISTED'), { maxRetries: 0 })
+    const error418 = await teapot.client.getInfo().catch((e: unknown) => e)
+    expect((error418 as object).constructor).toBe(sdk.ApiError)
 })
 
 test('error classes have the parents listed in the catalogue', () => {

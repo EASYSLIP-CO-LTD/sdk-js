@@ -1,7 +1,7 @@
 // Registers a receiving bank account and links it to this branch.
 // Usage: node examples/bank-accounts-create.ts <bank code> <account number> <Thai name> <English name> [NATURAL|JURISTIC]
 import { Client, ConflictError } from '@easyslip/sdk'
-import { arg, run } from './util.ts'
+import { accountTypeArg, arg, run } from './util.ts'
 
 const usage = '<bank code> <account number> <Thai name> <English name> [NATURAL|JURISTIC]'
 const params = {
@@ -9,7 +9,7 @@ const params = {
     bankNumber: arg(1, usage),
     nameTh: arg(2, usage),
     nameEn: arg(3, usage),
-    type: process.argv[6] ?? 'NATURAL',
+    type: accountTypeArg(4, usage) ?? 'NATURAL',
 }
 
 await run(async () => {
