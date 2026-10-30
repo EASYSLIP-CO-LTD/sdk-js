@@ -7,5 +7,7 @@ export default defineConfig({
         testTimeout: 180_000,
         hookTimeout: 60_000,
         fileParallelism: false,
+        // Show the results table the suite prints at the end, also when every test passes.
+        silent: false,
     },
 })
