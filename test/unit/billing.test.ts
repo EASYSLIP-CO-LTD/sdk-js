@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'vitest'
+import { describe, expect, test } from 'bun:test'
 import * as sdk from '../../src/index.ts'
 import { mockClient, ok, PNG, v2error } from './helpers.ts'
 

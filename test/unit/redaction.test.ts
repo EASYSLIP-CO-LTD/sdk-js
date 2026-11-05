@@ -1,6 +1,6 @@
+import { afterAll, beforeAll, describe, expect, test } from 'bun:test'
 import { createServer, type Server } from 'node:http'
 import { inspect } from 'node:util'
-import { afterAll, beforeAll, describe, expect, test } from 'vitest'
 import * as sdk from '../../src/index.ts'
 import { mockClient, v2error } from './helpers.ts'
 

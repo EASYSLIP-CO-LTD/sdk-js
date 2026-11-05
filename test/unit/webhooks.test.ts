@@ -1,5 +1,5 @@
+import { afterEach, describe, expect, test } from 'bun:test'
 import { createHash, createHmac, randomBytes } from 'node:crypto'
-import { afterEach, describe, expect, test } from 'vitest'
 import { settings } from '../../src/core/settings.ts'
 import { hmacSha256, sha256, toHex } from '../../src/core/sha256.ts'
 import * as sdk from '../../src/index.ts'

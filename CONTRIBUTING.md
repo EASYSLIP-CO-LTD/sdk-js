@@ -1,19 +1,23 @@
 # Contributing
 
-Development uses [Bun](https://bun.com), at the version in `.bun-version`. `check:package` also needs
-npm, and CI runs the tests on the Node.js versions listed in `.github/workflows/ci.yml` and on Bun.
-Install the development tools, then run:
+Development uses [Bun](https://bun.com), at the version in `.bun-version`. Node.js and npm are not
+needed. Install the development tools, then run:
 
 ```sh
 bun install --frozen-lockfile
 bun run lint
 bun run typecheck
-bun run test          # on Node.js
-bun --bun run test    # on Bun
+bun run test
 bun run check:package
+bun scripts/smoke.ts bun
 ```
 
-The test suite checks the README examples and conformance fixtures without credentials.
+The test suite runs on Bun and checks the README examples and conformance fixtures without
+credentials. The package is built for Node.js. To check it there, install Node.js and run
+`bun scripts/smoke.ts node`: it installs the tarball in an empty project and calls a local mock of
+the API with both `require` and `import`. CI does this on every Node.js version in
+`.github/workflows/ci.yml`.
+
 For live tests, set `EASYSLIP_API_KEY` or `EASYSLIP_API_KEY_FILE` to your own key, and optionally
 `EASYSLIP_V1_BASE_URL` and `EASYSLIP_V2_BASE_URL` to the API endpoints. The other variables are
 listed at the top of `test/integration/live.test.ts`:

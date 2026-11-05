@@ -1,5 +1,5 @@
+import { describe, expect, test } from 'bun:test'
 import { createServer } from 'node:net'
-import { describe, expect, test } from 'vitest'
 import { backoffDelay, isConnectFailure } from '../../src/core/http.ts'
 import * as sdk from '../../src/index.ts'
 import { mockClient, ok, slipResult, v2error } from './helpers.ts'

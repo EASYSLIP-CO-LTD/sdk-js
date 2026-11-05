@@ -1,5 +1,5 @@
+import { expect, test } from 'bun:test'
 import { readFileSync } from 'node:fs'
-import { expect, test } from 'vitest'
 import { errorCodes, statusFallback } from '../../src/core/error-codes.ts'
 import * as sdk from '../../src/index.ts'
 import { VERSION } from '../../src/version.ts'
@@ -18,12 +18,12 @@ const classOf = (codes: Record<string, { class: string }>) =>
     Object.fromEntries(Object.entries(codes).map(([code, entry]) => [code, entry.class]))
 
 test('every API error code maps to the class in the error catalogue', () => {
-    expect(errorCodes.v1).toEqual(classOf(catalogue.codes.v1))
-    expect(errorCodes.v2).toEqual(classOf(catalogue.codes.v2))
+    expect(errorCodes.v1 as Record<string, string>).toEqual(classOf(catalogue.codes.v1))
+    expect(errorCodes.v2 as Record<string, string>).toEqual(classOf(catalogue.codes.v2))
 })
 
 test('unknown codes fall back to the class for their HTTP status', () => {
-    expect(statusFallback).toEqual(
+    expect(statusFallback as Record<number, string>).toEqual(
         Object.fromEntries(
             Object.entries(catalogue.statusFallback).map(([status, cls]) => [Number(status), cls]),
         ),
@@ -58,4 +58,9 @@ test('error classes have the parents listed in the catalogue', () => {
 test('VERSION matches package.json', () => {
     const pkg = JSON.parse(readFileSync(new URL('../../package.json', import.meta.url), 'utf8'))
     expect(VERSION).toBe(pkg.version)
+})
+
+test('an input error prints its code', () => {
+    const error = new sdk.InputError('INVALID_ARGUMENT', 'no API key')
+    expect(String(error)).toBe('InputError: [INVALID_ARGUMENT] no API key')
 })

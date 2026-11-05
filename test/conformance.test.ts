@@ -1,11 +1,11 @@
 // Runs every fixture in test/fixtures against the SDK: recorded API answers, retry behaviour
 // and webhook signatures.
 
+import { describe, expect, test } from 'bun:test'
 import { createHash } from 'node:crypto'
 import { readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { describe, expect, test } from 'vitest'
 import { decodeResponse } from '../src/core/http.ts'
 import { settings } from '../src/core/settings.ts'
 import * as sdk from '../src/index.ts'

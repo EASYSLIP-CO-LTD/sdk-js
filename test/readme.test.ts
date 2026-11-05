@@ -1,10 +1,11 @@
 // Type-checks every TypeScript code block in README.md and README.th.md exactly as written, so
 // the samples customers copy keep compiling against the current API.
+
+import { expect, test } from 'bun:test'
 import { spawnSync } from 'node:child_process'
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { expect, test } from 'vitest'
 
 const root = fileURLToPath(new URL('..', import.meta.url))
 

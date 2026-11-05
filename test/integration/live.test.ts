@@ -10,10 +10,11 @@
 //                                already verified, so checkDuplicate calls use no quota
 //   EASYSLIP_TEST_QR_DIR         qr-0.png and qr-1.png, QR images of the first two payloads
 //   EASYSLIP_TEST_CALLBACK_URL   an https URL that accepts webhook posts, for the async job tests
+
+import { afterAll, beforeAll, describe, expect, test } from 'bun:test'
 import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { afterAll, beforeAll, describe, expect, test } from 'vitest'
 import * as sdk from '../../src/index.ts'
 
 const env = process.env
