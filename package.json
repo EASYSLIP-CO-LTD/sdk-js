@@ -55,18 +55,18 @@
         "provenance": true
     },
     "scripts": {
-        "clean": "node -e \"fs.rmSync('dist', { recursive: true, force: true })\"",
-        "build": "npm run clean && npm run build:esm && npm run build:cjs",
-        "build:esm": "tsc -p tsconfig.esm.json && node -e \"fs.writeFileSync('dist/esm/package.json', JSON.stringify({ type: 'module' }))\"",
-        "build:cjs": "tsc -p tsconfig.cjs.json && node -e \"fs.writeFileSync('dist/cjs/package.json', JSON.stringify({ type: 'commonjs' }))\"",
+        "clean": "bun -e \"fs.rmSync('dist', { recursive: true, force: true })\"",
+        "build": "bun run clean && bun run build:esm && bun run build:cjs",
+        "build:esm": "tsc -p tsconfig.esm.json && bun -e \"fs.writeFileSync('dist/esm/package.json', JSON.stringify({ type: 'module' }))\"",
+        "build:cjs": "tsc -p tsconfig.cjs.json && bun -e \"fs.writeFileSync('dist/cjs/package.json', JSON.stringify({ type: 'commonjs' }))\"",
         "lint": "biome ci .",
         "format": "biome format --write .",
         "typecheck": "tsc -p tsconfig.json",
         "test": "vitest run",
         "test:coverage": "vitest run --coverage",
         "test:integration": "vitest run --config vitest.integration.config.ts",
-        "check:package": "npm pack --dry-run && publint run --strict && attw --pack .",
-        "prepack": "npm run build"
+        "check:package": "bun pm pack --dry-run && publint run --strict && attw --pack .",
+        "prepack": "bun run build"
     },
     "devDependencies": {
         "@arethetypeswrong/cli": "0.18.5",

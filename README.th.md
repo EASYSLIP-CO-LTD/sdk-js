@@ -589,7 +589,7 @@ createServer(async (request, response) => {
 
 ## ตัวอย่างและเอกสาร
 
-- โฟลเดอร์ [`examples`](examples) มีโปรแกรมที่รันได้จริงครบทุกเมธอด clone repository นี้ รัน `npm install` และ `npm run build` แล้วรันตัวอย่าง เช่น `EASYSLIP_API_KEY="your-api-key" node examples/verify-bank-image.ts ./slip.jpg` ถ้าไม่ใส่ argument ตัวอย่างจะบอกวิธีเรียกที่ถูกต้อง
+- โฟลเดอร์ [`examples`](examples) มีโปรแกรมที่รันได้จริงครบทุกเมธอด clone repository นี้ รัน `bun install` และ `bun run build` แล้วรันตัวอย่าง เช่น `EASYSLIP_API_KEY="your-api-key" node examples/verify-bank-image.ts ./slip.jpg` ถ้าไม่ใส่ argument ตัวอย่างจะบอกวิธีเรียกที่ถูกต้อง
 - [คู่มือ SDK](https://document.easyslip.com/th/sdk/javascript) อธิบาย SDK นี้ในเอกสารของ EasySlip
 - [เอกสาร API](https://document.easyslip.com) อธิบายทุก endpoint ทุกฟิลด์ และ[รหัส error](https://document.easyslip.com/th/reference/error-codes)
 

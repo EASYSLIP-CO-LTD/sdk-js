@@ -1,4 +1,4 @@
-// Integration tests against the live EasySlip API. Run them with `npm run test:integration`.
+// Integration tests against the live EasySlip API. Run them with `bun run test:integration`.
 //
 // Every test is skipped unless an API key is set (the key is never printed):
 //   EASYSLIP_API_KEY or EASYSLIP_API_KEY_FILE

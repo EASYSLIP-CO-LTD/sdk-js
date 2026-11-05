@@ -575,7 +575,7 @@ In Express, add `express.raw({ type: 'application/json' })` to the webhook route
 
 ## Examples and documentation
 
-- [`examples`](examples) has one runnable program for every method. Clone this repository, run `npm install` and `npm run build`, then run an example, for example `EASYSLIP_API_KEY="your-api-key" node examples/verify-bank-image.ts ./slip.jpg`. If you leave out its arguments, an example prints how to call it.
+- [`examples`](examples) has one runnable program for every method. Clone this repository, run `bun install` and `bun run build`, then run an example, for example `EASYSLIP_API_KEY="your-api-key" node examples/verify-bank-image.ts ./slip.jpg`. If you leave out its arguments, an example prints how to call it.
 - The [SDK guide](https://document.easyslip.com/en/sdk/javascript) covers this SDK in the EasySlip documentation.
 - The [API reference](https://document.easyslip.com) describes every endpoint, field and [error code](https://document.easyslip.com/en/reference/error-codes).
 

@@ -1,13 +1,16 @@
 # Contributing
 
-Use a runtime listed in `.github/workflows/ci.yml`. Install the development tools, then run:
+Development uses [Bun](https://bun.com), at the version in `.bun-version`. `check:package` also needs
+npm, and CI runs the tests on the Node.js versions listed in `.github/workflows/ci.yml` and on Bun.
+Install the development tools, then run:
 
 ```sh
-npm ci
-npm run lint
-npm run typecheck
-npm test
-npm run check:package
+bun install --frozen-lockfile
+bun run lint
+bun run typecheck
+bun run test          # on Node.js
+bun --bun run test    # on Bun
+bun run check:package
 ```
 
 The test suite checks the README examples and conformance fixtures without credentials.
@@ -16,7 +19,7 @@ For live tests, set `EASYSLIP_API_KEY` or `EASYSLIP_API_KEY_FILE` to your own ke
 listed at the top of `test/integration/live.test.ts`:
 
 ```sh
-npm run test:integration
+bun run test:integration
 ```
 
 Live tests may use quota. Never commit keys or slip data.

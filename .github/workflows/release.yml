@@ -41,6 +41,10 @@ jobs:
         with:
           ref: ${{ env.RELEASE_TAG }}
           persist-credentials: false
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version-file: .bun-version
+          no-cache: true
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 26
@@ -48,5 +52,6 @@ jobs:
           package-manager-cache: false
       - name: Check tag matches package version
         run: test "$RELEASE_TAG" = "v$(node -p 'require("./package.json").version')"
-      - run: npm ci && npm run build
+      - run: bun install --frozen-lockfile && bun run build
+      # bun publish cannot generate provenance or use trusted publishing, so npm publishes.
       - run: npm publish --provenance --access public --ignore-scripts
