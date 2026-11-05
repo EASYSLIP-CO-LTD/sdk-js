@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/EASYSLIP-CO-LTD/sdk-js/compare/v1.0.0...v1.0.1) (2026-11-05)
+
+
+### Bug Fixes
+
+* publish to npm with provenance ([37ce44e](https://github.com/EASYSLIP-CO-LTD/sdk-js/commit/37ce44e88e862243081e3d2ecd4bc204c9ac65f3))
+
 ## 1.0.0 (2026-10-30)
 
 
