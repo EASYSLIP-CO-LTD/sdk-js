@@ -172,10 +172,10 @@ const result = await easyslip.verify.truewalletByImage('./wallet-receipt.png', {
     matchAmount: 500,
     checkDuplicate: true,
 })
-console.log(result.rawSlip.transactionId, result.rawSlip.amount, result.rawSlip.receiver.name)
+console.log(result.rawSlip.transactionId, result.rawSlip.amount, result.rawSlip.receiver?.phone)
 ```
 
-ใช้ `verify.truewalletByUrl` เมื่อมี URL ของรูป และ `verify.truewalletByBase64` เมื่อมี base64
+ใช้ `verify.truewalletByUrl` เมื่อมี URL ของรูป `verify.truewalletByBase64` เมื่อมี base64 และ `verify.truewalletByPayload` เมื่อมีข้อความใน QR ของรายการโอน ใน v1 ใช้ `v1.verifyTruemoneyByPayload`
 
 ### ข้อมูลบัญชีและโควต้าคงเหลือ
 
@@ -383,9 +383,11 @@ outcomes.forEach((outcome, index) => {
 | `rawSlip.transactionId` | `string` | เลขรายการของ TrueMoney | `'50012345678901'` |
 | `rawSlip.date` | `string` | เวลาที่ชำระ รูปแบบ ISO 8601 | `'2026-10-26T14:30:00+07:00'` |
 | `rawSlip.amount` | `number` | ยอดเงิน หน่วยเป็นบาท | `500` |
-| `rawSlip.sender.name` | `string` | ชื่อผู้โอน | `'นาย ผู้โอน ทดสอบ'` |
-| `rawSlip.receiver.name` | `string` | ชื่อผู้รับ | `'นาย รับเงิน ทดสอบ'` |
-| `rawSlip.receiver.phone` | `string` | เบอร์โทรผู้รับ ปิดบางหลักไว้ | `'08x-xxx-4567'` |
+| `rawSlip.sender?.phone` | `string` | เบอร์โทรผู้โอน ปิดบางหลักไว้ | `'08-xxx-2345'` |
+| `rawSlip.receiver?.phone` | `string` | เบอร์โทรผู้รับ ปิดบางหลักไว้ | `'08-xxx-9876'` |
+| `rawSlip.sender?.name`, `rawSlip.receiver?.name` | `string` | ชื่อ เลิกใช้แล้ว ผลใหม่ไม่มี มีเฉพาะผลรุ่นเก่า | `'นาย รับเงิน ทดสอบ'` |
+
+ผลลัพธ์ใหม่ไม่มีชื่อ ถ้าไม่ได้เบอร์ฝั่งไหนมา `sender` หรือ `receiver` ฝั่งนั้นจะไม่มี จึงควรอ่านด้วย `?.`
 
 ผลการตรวจทุกตัวมี property `meta` ที่เก็บ HTTP status, `requestId`, ตัวนับ rate limit และ header ของ response ค่านี้ไม่ได้เป็นส่วนของข้อมูล `JSON.stringify(result)` จึงไม่รวม `meta` ไว้
 

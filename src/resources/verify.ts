@@ -100,6 +100,22 @@ export class Verify {
         })
     }
 
+    /** Verifies a TrueMoney Wallet transfer from its QR text (up to 256 characters). */
+    async truewalletByPayload(
+        payload: string,
+        options?: VerifyCallOptions,
+    ): Promise<WithMeta<TrueWalletResult>> {
+        requireString(payload, 'payload')
+        return call(this.#t, 'TrueWalletResult', {
+            ...requestOptions(options),
+            api: 'v2',
+            method: 'POST',
+            path: '/verify/truewallet',
+            json: { payload, ...verifyFields(options) },
+            retry: 'billed',
+        })
+    }
+
     /** Verifies a TrueMoney Wallet slip image. */
     async truewalletByImage(
         file: FileInput,
