@@ -187,6 +187,25 @@ export class V1 {
         })
     }
 
+    /** Verifies a TrueMoney Wallet transfer from its QR text (up to 256 characters). */
+    async verifyTruemoneyByPayload(
+        payload: string,
+        options?: V1VerifyOptions,
+    ): Promise<WithMeta<TrueWalletSlip>> {
+        requireString(payload, 'payload')
+        const json: Record<string, unknown> = { payload }
+        if (options?.checkDuplicate !== undefined) json.checkDuplicate = options.checkDuplicate
+        return call(this.#t, 'TrueWalletSlip', {
+            ...requestOptions(options),
+            api: 'v1',
+            method: 'POST',
+            path: '/verify/truewallet',
+            json,
+            retry: 'billed',
+            duplicateSlip: 'TrueWalletSlip',
+        })
+    }
+
     /** Verifies a TrueMoney Wallet slip image. */
     async verifyTruemoneyByImage(
         file: FileInput,

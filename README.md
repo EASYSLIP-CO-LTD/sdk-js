@@ -168,10 +168,10 @@ const result = await easyslip.verify.truewalletByImage('./wallet-receipt.png', {
     matchAmount: 500,
     checkDuplicate: true,
 })
-console.log(result.rawSlip.transactionId, result.rawSlip.amount, result.rawSlip.receiver.name)
+console.log(result.rawSlip.transactionId, result.rawSlip.amount, result.rawSlip.receiver?.phone)
 ```
 
-`verify.truewalletByUrl` takes an image URL and `verify.truewalletByBase64` takes base64.
+`verify.truewalletByUrl` takes an image URL, `verify.truewalletByBase64` takes base64, and `verify.truewalletByPayload` takes the text of the transfer QR code. In v1 use `v1.verifyTruemoneyByPayload`.
 
 ### Account info and remaining quota
 
@@ -373,9 +373,11 @@ The top-level fields are the same as for a bank slip. `rawSlip` holds:
 | `rawSlip.transactionId` | `string` | The TrueMoney transaction ID. | `'50012345678901'` |
 | `rawSlip.date` | `string` | When the payment happened, in ISO 8601. | `'2026-10-26T14:30:00+07:00'` |
 | `rawSlip.amount` | `number` | The amount, in baht. | `500` |
-| `rawSlip.sender.name` | `string` | The payer's name. | `'นาย ผู้โอน ทดสอบ'` |
-| `rawSlip.receiver.name` | `string` | The receiver's name. | `'นาย รับเงิน ทดสอบ'` |
-| `rawSlip.receiver.phone` | `string` | The receiver's phone number, partly hidden. | `'08x-xxx-4567'` |
+| `rawSlip.sender?.phone` | `string` | The payer's phone number, partly hidden. | `'08-xxx-2345'` |
+| `rawSlip.receiver?.phone` | `string` | The receiver's phone number, partly hidden. | `'08-xxx-9876'` |
+| `rawSlip.sender?.name`, `rawSlip.receiver?.name` | `string` | The name. Deprecated: new results do not have it, only older ones do. | `'นาย รับเงิน ทดสอบ'` |
+
+A result has no names. `sender` and `receiver` are missing when no phone came back for that side, so read them with `?.`.
 
 Every result also has a `meta` property with the HTTP status, the `requestId`, the rate limit counters and the response headers. It is not part of the data, so `JSON.stringify(result)` leaves it out.
 

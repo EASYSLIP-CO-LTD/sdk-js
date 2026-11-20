@@ -63,6 +63,8 @@ const operations: Record<string, (c: sdk.Client, a: Json) => Promise<unknown>> =
     'verify.bankByImage': (c, a) => c.verify.bankByImage(file(a), pick(a, VERIFY)),
     'verify.bankByBase64': (c, a) => c.verify.bankByBase64(a.base64, pick(a, VERIFY)),
     'verify.bankByUrl': (c, a) => c.verify.bankByUrl(a.url, pick(a, VERIFY)),
+    'verify.truewalletByPayload': (c, a) =>
+        c.verify.truewalletByPayload(a.payload, pick(a, VERIFY)),
     'verify.truewalletByImage': (c, a) => c.verify.truewalletByImage(file(a), pick(a, VERIFY)),
     'verify.truewalletByBase64': (c, a) => c.verify.truewalletByBase64(a.base64, pick(a, VERIFY)),
     'verify.truewalletByUrl': (c, a) => c.verify.truewalletByUrl(a.url, pick(a, VERIFY)),
@@ -83,11 +85,14 @@ const operations: Record<string, (c: sdk.Client, a: Json) => Promise<unknown>> =
     'v1.verifyBankByBase64': (c, a) => c.v1.verifyBankByBase64(a.base64, pick(a, VERIFY)),
     'v1.verifyBankByUrl': (c, a) => c.v1.verifyBankByUrl(a.url, pick(a, VERIFY)),
     'v1.verifyTruemoneyByImage': (c, a) => c.v1.verifyTruemoneyByImage(file(a), pick(a, VERIFY)),
+    'v1.verifyTruemoneyByPayload': (c, a) =>
+        c.v1.verifyTruemoneyByPayload(a.payload, pick(a, VERIFY)),
     'v1.generateQr': (c, a) => c.v1.generateQr(a),
 }
 
 const DUPLICATE_SLIP: Record<string, 'BankSlip' | 'TrueWalletSlip'> = {
     'v1.verifyTruemoneyByImage': 'TrueWalletSlip',
+    'v1.verifyTruemoneyByPayload': 'TrueWalletSlip',
 }
 
 async function settle(promise: Promise<unknown>): Promise<{ value?: unknown; error?: unknown }> {

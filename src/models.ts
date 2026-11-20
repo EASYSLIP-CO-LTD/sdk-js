@@ -177,23 +177,32 @@ export interface BankSlipResult {
 
 // ---------------------------------------------------------------- TrueMoney Wallet
 
-/** A TrueMoney Wallet slip. v2 `rawSlip`, v1 TrueMoney `data`. */
+/**
+ * A TrueMoney Wallet slip. v2 `rawSlip`, v1 TrueMoney `data`.
+ *
+ * `sender` and `receiver` are absent when the API has no phone for that side, so a slip can come
+ * back with neither. Newer answers carry no names.
+ */
 export interface TrueWalletSlip {
     transactionId: string
     date: string
     amount: number
-    sender: TrueWalletSender
-    receiver: TrueWalletReceiver
+    sender?: TrueWalletSender
+    receiver?: TrueWalletReceiver
 }
 
 export interface TrueWalletSender {
-    name: string
+    /** @deprecated Newer answers carry no name. */
+    name?: string
+    /** Masked phone number, for example `08-xxx-2345`. */
+    phone?: string
 }
 
 export interface TrueWalletReceiver {
-    name: string
-    /** Masked phone number. */
-    phone: string
+    /** @deprecated Newer answers carry no name. */
+    name?: string
+    /** Masked phone number, for example `08-xxx-2345`. */
+    phone?: string
 }
 
 /** v2 TrueMoney Wallet verification result. Same options as {@link BankSlipResult}. */
@@ -489,7 +498,7 @@ const trueWalletSlipShape: ShapeOf<TrueWalletSlip> = {
     transactionId: 0,
     date: 0,
     amount: 0,
-    sender: { name: 0 } satisfies ShapeOf<TrueWalletSender>,
+    sender: { name: 0, phone: 0 } satisfies ShapeOf<TrueWalletSender>,
     receiver: { name: 0, phone: 0 } satisfies ShapeOf<TrueWalletReceiver>,
 }
 const trueWalletResultShape: ShapeOf<TrueWalletResult> = {
