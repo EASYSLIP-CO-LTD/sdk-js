@@ -377,7 +377,7 @@ The top-level fields are the same as for a bank slip. `rawSlip` holds:
 | `rawSlip.receiver?.phone` | `string` | The receiver's phone number, partly hidden. | `'08-xxx-9876'` |
 | `rawSlip.sender?.name`, `rawSlip.receiver?.name` | `string` | The name. Deprecated: new results do not have it, only older ones do. | `'นาย รับเงิน ทดสอบ'` |
 
-A result has no names. `sender` and `receiver` are missing when no phone came back for that side, so read them with `?.`.
+New results have no names. `sender` and `receiver` are missing when no phone came back for that side, so read them with `?.`.
 
 Every result also has a `meta` property with the HTTP status, the `requestId`, the rate limit counters and the response headers. It is not part of the data, so `JSON.stringify(result)` leaves it out.
 

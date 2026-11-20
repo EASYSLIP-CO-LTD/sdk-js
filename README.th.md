@@ -387,7 +387,7 @@ outcomes.forEach((outcome, index) => {
 | `rawSlip.receiver?.phone` | `string` | เบอร์โทรผู้รับ ปิดบางหลักไว้ | `'08-xxx-9876'` |
 | `rawSlip.sender?.name`, `rawSlip.receiver?.name` | `string` | ชื่อ เลิกใช้แล้ว ผลใหม่ไม่มี มีเฉพาะผลรุ่นเก่า | `'นาย รับเงิน ทดสอบ'` |
 
-ผลลัพธ์ไม่มีชื่อ ถ้าไม่ได้เบอร์ฝั่งไหนมา `sender` หรือ `receiver` ฝั่งนั้นจะไม่มี จึงควรอ่านด้วย `?.`
+ผลลัพธ์ใหม่ไม่มีชื่อ ถ้าไม่ได้เบอร์ฝั่งไหนมา `sender` หรือ `receiver` ฝั่งนั้นจะไม่มี จึงควรอ่านด้วย `?.`
 
 ผลการตรวจทุกตัวมี property `meta` ที่เก็บ HTTP status, `requestId`, ตัวนับ rate limit และ header ของ response ค่านี้ไม่ได้เป็นส่วนของข้อมูล `JSON.stringify(result)` จึงไม่รวม `meta` ไว้
 
